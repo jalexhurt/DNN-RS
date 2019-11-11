@@ -1,3 +1,5 @@
+import os
+from argparse import ArgumentParser
 from time import perf_counter
 
 import numpy as np
@@ -10,7 +12,30 @@ from tqdm import trange
 from models import load_model
 
 
-def validate(test_data_dir, filename, network, gpu, cpu_count, batch_size):
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("--test_data_dir", default=None)
+    parser.add_argument("--filename", default=None)
+    parser.add_argument("--network", default=None)
+    parser.add_argument("--gpu", default=None)
+    parser.add_argument("--cpu_count", default=None, type=int)
+    parser.add_argument("--batch_size", default=None, type=int)
+    args = vars(parser.parse_args())
+
+    params = {}
+    for p in args:
+        if p is not None:
+            params[p] = args[p]
+
+    validate(**params)
+
+
+def validate(test_data_dir="./images",
+             filename="mode.pt",
+             network="ResNet50",
+             gpu=None,
+             cpu_count=os.cpu_count(),
+             batch_size=16):
     classes, _ = find_classes(test_data_dir)
     model = load_model(filename, network, len(classes))
 
@@ -69,3 +94,7 @@ def validate(test_data_dir, filename, network, gpu, cpu_count, batch_size):
     print("Loss: {:.4f}, Acc: {:.4f}, Time: {:.4f}s".format(loss, acc, end_time - start_time))
 
     return np.array(y_pred), np.array(y_true), np.array(conf)
+
+
+if __name__ == '__main__':
+    main()
