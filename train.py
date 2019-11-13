@@ -25,10 +25,9 @@ def main():
     parser.add_argument("--output_filename", default=None)
     args = vars(parser.parse_args())
 
-    params = {}
-    for p in args:
-        if p is not None:
-            params[p] = args[p]
+    params = {k: args[k] for k in args if args[k] is not None}
+
+    print(params)
 
     train(**params)
 
