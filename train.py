@@ -6,6 +6,7 @@ from time import perf_counter
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from tqdm import trange
 
@@ -46,7 +47,17 @@ def train(
     ############
     # Create Data Loader
     ############
-    dataset = ImageFolder(train_data_dir)
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+
+    dataset = ImageFolder(
+        train_data_dir,
+        transforms.Compose([
+            transforms.Resize(224),
+            transforms.ToTensor(),
+            normalize,
+        ]))
+
     # extract number of classes
     num_classes = len(set(dataset.classes))
 
@@ -72,15 +83,15 @@ def train(
         # train for one epoch
         model, epoch_loss, epoch_acc, epoch_time = epoch(dataloader, model, criterion, optimizer, i, gpu)
 
-        # append to dataframe
-        train_stats = train_stats.append({
-            "time": epoch_time,
-            "loss": epoch_loss.item() if isinstance(epoch_loss, torch.Tensor) else epoch_loss,
-            "acc": epoch_acc.item() if isinstance(epoch_acc, torch.Tensor) else epoch_acc
-        }, ignore_index=True)
+    # append to dataframe
+    train_stats = train_stats.append({
+        "time": epoch_time,
+        "loss": epoch_loss.item() if isinstance(epoch_loss, torch.Tensor) else epoch_loss,
+        "acc": epoch_acc.item() if isinstance(epoch_acc, torch.Tensor) else epoch_acc
+    }, ignore_index=True)
 
-        # save output file
-        train_stats.to_csv(stat_filename, index_label="epoch")
+    # save output file
+    train_stats.to_csv(stat_filename, index_label="epoch")
 
     # final save
     save_checkpoint(model, output_filename)

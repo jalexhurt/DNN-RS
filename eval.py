@@ -5,6 +5,7 @@ from time import perf_counter
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torchvision.datasets.folder import find_classes
 from tqdm import trange
@@ -42,7 +43,15 @@ def validate(test_data_dir="./images",
     cuda_id = int(gpu.split(",")[0]) if gpu is not None else 0
     device = torch.device("cuda:{}".format(cuda_id) if gpu is not None else "cpu")
     model = model.to(device)
-    val_dataset = ImageFolder(test_data_dir)
+    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                     std=[0.229, 0.224, 0.225])
+    val_dataset = ImageFolder(
+        test_data_dir,
+        transforms.Compose([
+            transforms.Resize(224),
+            transforms.ToTensor(),
+            normalize,
+        ]))
     criterion = torch.nn.CrossEntropyLoss()
 
     val_loader = DataLoader(val_dataset, shuffle=False, num_workers=cpu_count, batch_size=batch_size)
