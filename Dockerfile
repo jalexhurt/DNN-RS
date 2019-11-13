@@ -4,3 +4,7 @@ WORKDIR /workspace
 RUN git clone https://github.com/jah3xc/DNN-RS
 WORKDIR /workspace/DNN-RS
 RUN pip install -r requirements.txt
+RUN mkdir /output
+WORKDIR /output
+ENV mode train
+ENTRYPOINT python /workspace/DNN-RS/${mode}.py
