@@ -44,6 +44,8 @@ def train(
         stat_filename="train_stats.csv",
         output_filename="model.pt"
 ):
+    use_gpu = (gpu is not None)
+
     ############
     # Create Data Loader
     ############
@@ -75,13 +77,15 @@ def train(
     # Device Setup
     #########
     cuda_id = int(gpu.split(",")[0]) if gpu is not None else 0
-    gpu = torch.device("cuda:{}".format(cuda_id) if gpu is not None else "cpu")
-
+    gpu_device = torch.device("cuda:{}".format(cuda_id)) if gpu is not None else "cpu"
+    if use_gpu:
+        model = model.cuda(gpu_device)
+        
     train_stats = pd.DataFrame(columns=["time", "loss", "acc"])
 
     for i in range(epochs):
         # train for one epoch
-        model, epoch_loss, epoch_acc, epoch_time = epoch(dataloader, model, criterion, optimizer, i, gpu)
+        model, epoch_loss, epoch_acc, epoch_time = epoch(dataloader, model, criterion, optimizer, i, gpu_device)
 
     # append to dataframe
     train_stats = train_stats.append({
