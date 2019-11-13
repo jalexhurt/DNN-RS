@@ -1,6 +1,6 @@
 torch==1.2.0
 pillow
-torchvision==0.4.0†
+torchvision==0.4.0
 numpy
 pandas
 git+https://github.com/Cadene/pretrained-models.pytorch
