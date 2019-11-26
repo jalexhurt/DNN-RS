@@ -7,7 +7,6 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from torchvision.datasets.folder import find_classes
 from tqdm import trange
 
 from models import load_model
@@ -37,7 +36,7 @@ def validate(test_data_dir="./images",
              gpu=None,
              cpu_count=os.cpu_count(),
              batch_size=16):
-    classes, _ = find_classes(test_data_dir)
+    classes = ImageFolder(test_data_dir).classes
     model = load_model(filename, network, len(classes))
 
     cuda_id = int(gpu.split(",")[0]) if gpu is not None else 0
